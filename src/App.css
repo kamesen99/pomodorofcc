@@ -42,15 +42,18 @@
   display: flex;
   flex-wrap: nowrap;
   width: 100%;
+  place-items: center;
 }
 #break-label {
   display: flex;
   width: 50%;
+  place-items: center;
   margin-left: 20%;
 }
 #session-label {
   display: flex;
   width: 50%;
+  place-items: center;
 }
 #timer-label {
   min-height: 10vh;

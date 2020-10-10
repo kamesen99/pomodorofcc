@@ -30,12 +30,12 @@ function App() {
         <div className="section">
           <div id="break-label">
             <ArrowDownwardIcon id="break-decrement" onClick={() => handleClickDown(breakTime, setBreakTime)} style={{marginRight: "1rem"}}/>
-              <p id="break-length" style={{marginTop: "0"}} >{breakTime}</p>:00
+              <p id="break-length" >{breakTime}</p>:00
             <ArrowUpwardIcon id="break-increment" onClick={() => handleClickUp(breakTime, setBreakTime)} style={{marginLeft: "1rem"}}/>
           </div>
           <div id="session-label">
             <ArrowDownwardIcon id="session-decrement" onClick={() => handleClickDown(session, setSession)} style={{marginRight: "1rem"}}/>
-              <p id="session-length" style={{marginTop: "0"}}>{session}</p>:00
+              <p id="session-length" >{session}</p>:00
             <ArrowUpwardIcon id="session-increment" onClick={() => handleClickUp(session, setSession)} style={{marginLeft: "1rem"}}/>
           </div>
         </div> 
