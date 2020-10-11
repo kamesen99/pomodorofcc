@@ -58,8 +58,17 @@
 #timer-label {
   min-height: 10vh;
   margin-left: 40%;
-  
 }
+.button-row {
+  display: flex;
+  place-items: center;
+  margin-left: 45%;
+}
+
+#start_stop {
+  padding-right: 1rem;
+}
+
 
 @keyframes App-logo-spin {
   from {

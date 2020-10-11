@@ -1,12 +1,9 @@
 import React, {useState} from 'react';
-//import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-//import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-//import { render } from '@testing-library/react';
 
 const Counter = (props) => {
     
-    //console.log(timeInSeconds)
     const [timer, setTimer] = useState(props.timer * 60);
+    //const [pause, setPause] = useState(false);
 
     const timeToFormat = (minutes, seconds) => {
         minutes = minutes < 10 ? "0" + minutes : minutes;
@@ -16,20 +13,29 @@ const Counter = (props) => {
     
     let minutes = Math.floor(timer / 60);
     let seconds = timer % 60;
+    let formatted = (timeToFormat(minutes, seconds))
 
-    let format = (timeToFormat(minutes, seconds))
+    const countDown = () =>{
+        setTimeout(() => setTimer(timer - 1), 1000)
+    }
+
+    console.log("Pause is "+ props.pause)
 
     React.useEffect(() => {
-        timer > 0 && setTimeout(() => setTimer(timer - 1), 1000)
+        timer > 0 && (!props.pause && countDown());
     })
+
+    // if (props.reset === true) {
+    //     setTimer(25 * 60);
+    //     //setPause(true);
+    //     console.log("timer cleared")
+    // }
     
     return(
-        
         <div id="timer-label">
-            <p id="time-left">Session {format}</p>
+            <p id="time-left">{formatted}</p>
         </div>
     )
-    
 }
 
 export default Counter;
