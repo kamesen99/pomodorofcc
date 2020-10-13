@@ -1,9 +1,17 @@
 import React, {useState} from 'react';
+import {
+    IconButton
+  } from '@material-ui/core';
+
+  import {
+    SkipNext
+  } from '@material-ui/icons';
 
 const Counter = (props) => {
     
-    const [timer, setTimer] = useState(props.timer * 60);
-    //const [pause, setPause] = useState(false);
+    const [currentTime, setCurrentTime] = useState(props.startTime * 60);
+    const [timerId, setTimerId] = useState(null);
+    const [isPaused, setIsPaused] = useState(true);
 
     const timeToFormat = (minutes, seconds) => {
         minutes = minutes < 10 ? "0" + minutes : minutes;
@@ -11,30 +19,41 @@ const Counter = (props) => {
         return (minutes + ":" + seconds);
     }
     
-    let minutes = Math.floor(timer / 60);
-    let seconds = timer % 60;
-    let formatted = (timeToFormat(minutes, seconds))
-
-    const countDown = () =>{
-        setTimeout(() => setTimer(timer - 1), 1000)
+    const handlePause = () => {
+        if (!isPaused) {
+            clearInterval(timerId);
+        }
+        setIsPaused(!isPaused);
     }
 
-    console.log("Pause is "+ props.pause)
+    const decrementTime = () => {
+        setCurrentTime(currentTime => currentTime - 1);
+    };
+
+    const countDown = () => {
+        setTimerId(setInterval(decrementTime, 1000));
+    }
 
     React.useEffect(() => {
-        timer > 0 && (!props.pause && countDown());
-    })
+        if (currentTime > 0 && !isPaused) {
+            countDown();
+        }
+    }, [isPaused]);
 
-    // if (props.reset === true) {
-    //     setTimer(25 * 60);
-    //     //setPause(true);
-    //     console.log("timer cleared")
-    // }
-    
-    return(
-        <div id="timer-label">
-            <p id="time-left">{formatted}</p>
-        </div>
+    let min = Math.floor(currentTime / 60);
+    let sec = currentTime % 60;
+    let formatted = (timeToFormat(min, sec))
+
+    return (
+            <div id="timer-label">
+                <IconButton
+                    id="start_stop"
+                    onClick={handlePause}
+                >
+                    <SkipNext />
+                </IconButton>
+                <p id="time-left">{formatted}</p>
+            </div>
     )
 }
 
