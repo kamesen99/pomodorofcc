@@ -3,7 +3,6 @@ import React, {useState} from 'react';
 const Counter = (props) => {
     
     const [timer, setTimer] = useState(props.timer * 60);
-    //const [pause, setPause] = useState(false);
 
     const timeToFormat = (minutes, seconds) => {
         minutes = minutes < 10 ? "0" + minutes : minutes;
@@ -24,12 +23,6 @@ const Counter = (props) => {
     React.useEffect(() => {
         timer > 0 && (!props.pause && countDown());
     })
-
-    // if (props.reset === true) {
-    //     setTimer(25 * 60);
-    //     //setPause(true);
-    //     console.log("timer cleared")
-    // }
     
     return(
         <div id="timer-label">

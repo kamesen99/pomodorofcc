@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import SkipNextIcon from '@material-ui/icons/SkipNext';
@@ -11,9 +11,20 @@ import './App.css';
 function App() {
 
   const [breakTime, setBreakTime] = useState(5);
-  const [session, setSession] = useState(25);
+  const [sessionTime, setSessionTime] = useState(25);
   const [timerStopped, setTimerStopped] = useState(true);
+  const [timerType, setTimerType] = useState("session");
+  const [timer, setTimer] = useState(25*60);
   //const [reset, setReset] = useState(false);
+
+  const handleReset = () => {
+    setBreakTime(5);
+    setSessionTime(25);
+    setTimerStopped(true);
+    setTimerType("session");
+    setTimer(25*60);
+    //document.getElementById('time-left').innerHTML = "25:00";
+  }
   
   const handleClickDown = (timer, setFunc) =>{
     if (timer > 1) {
@@ -27,14 +38,40 @@ function App() {
   }
   const handleStartStop = () => {
     setTimerStopped(!timerStopped);
-  }
-
-  const handleReset = () => {
-    setBreakTime(5);
-    setSession(25);
-    document.getElementById('time-left').innerHTML = "25:00";
+    console.log("Play/pause pressed!")
   }
   
+  const useAudio = new Audio("BeepSound.wav");
+  const start = () => {
+    useAudio.play();
+  }
+
+  const countDown = () =>{
+    setTimeout(() => setTimer(timer - 1), 1000)
+  }
+  React.useEffect(() => {
+    timer > 0 && (!timerStopped && countDown());
+  })
+  
+  const Counter = (timer) => {
+    //const [timeleft, setTimeleft] = useState(timer * 60);
+    const timeToFormat = (minutes, seconds) => {
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+      return (minutes + ":" + seconds);
+    }
+
+    let minutes = Math.floor(timer / 60);
+    let seconds = timer % 60;
+    let formatted = (timeToFormat(minutes, seconds))
+
+    return(
+      <div id="timer-label">
+          <p id="time-left">{formatted}</p>
+      </div>
+    )
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -48,9 +85,9 @@ function App() {
             <ArrowUpwardIcon id="break-increment" onClick={() => handleClickUp(breakTime, setBreakTime)} style={{marginLeft: "1rem"}}/>
           </div>
           <div id="session-label">
-            <ArrowDownwardIcon id="session-decrement" onClick={() => handleClickDown(session, setSession)} style={{marginRight: "1rem"}}/>
-              <p id="session-length" >{session}</p>:00
-            <ArrowUpwardIcon id="session-increment" onClick={() => handleClickUp(session, setSession)} style={{marginLeft: "1rem"}}/>
+            <ArrowDownwardIcon id="session-decrement" onClick={() => handleClickDown(sessionTime, setSessionTime)} style={{marginRight: "1rem"}}/>
+              <p id="session-length" >{sessionTime}</p>:00
+            <ArrowUpwardIcon id="session-increment" onClick={() => handleClickUp(sessionTime, setSessionTime)} style={{marginLeft: "1rem"}}/>
           </div>
         </div> 
         <div className="timer-section">
@@ -58,18 +95,14 @@ function App() {
             <SkipNextIcon id="start_stop" onClick={handleStartStop}/>
             <ReplayIcon id="reset" onClick={handleReset} />
           </div>
-          <div></div>
           <div>
-          Session {!timerStopped
-                ? <Counter timer={session} pause={false}/> 
-                : <Counter timer={session} pause={true}/>}
-          </div>
+            Session: {timerType} {Counter(timer)}
+          </div>          
         </div>
       </div>
-       
     </div>
   );
 }
-
+    
 export default App;
-//
+
