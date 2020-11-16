@@ -1,4 +1,6 @@
 import React, {useState, useEffect, useCallback} from 'react';
+import {AccurateInterval} from "./components/AccurateInterval"
+
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import SkipNextIcon from '@material-ui/icons/SkipNext';
@@ -12,19 +14,11 @@ function App() {
 
   const [breakTime, setBreakTime] = useState(5);
   const [sessionTime, setSessionTime] = useState(25);
-  const [timerStopped, setTimerStopped] = useState(true);
-  const [timerType, setTimerType] = useState("session");
+  const [timerState, setTimerState] = useState("stopped");
+  const [timerType, setTimerType] = useState("Session");
+  const [timerID, setTimerID] = useState("");
   const [timer, setTimer] = useState(25*60);
   //const [reset, setReset] = useState(false);
-
-  const handleReset = () => {
-    setBreakTime(5);
-    setSessionTime(25);
-    setTimerStopped(true);
-    setTimerType("session");
-    setTimer(25*60);
-    //document.getElementById('time-left').innerHTML = "25:00";
-  }
   
   const handleClickDown = (timer, setFunc) =>{
     if (timer > 1) {
@@ -37,24 +31,68 @@ function App() {
     }
   }
   const handleStartStop = () => {
-    setTimerStopped(!timerStopped);
+    // setTimerStopped(!timerStopped);
     console.log("Play/pause pressed!")
   }
   
-  const useAudio = new Audio("BeepSound.wav");
-  const start = () => {
+  const startBeep = () => {
+    const useAudio = new Audio("BeepSound.wav");
     useAudio.play();
   }
 
-  const countDown = () =>{
-    setTimeout(() => setTimer(timer - 1), 1000)
+  // const countDown = () =>{
+  //   setTimeout(() => setTimer(timer - 1), 1000)
+  // }
+  // React.useEffect(() => {
+  //   //timer > 0 && (!timerStopped && countDown());
+  // })
+
+  const TimeControl = () => {
+    console.log("Timer Control!")
+    if (timerState === "stopped"){
+      startCountDown();
+      setTimerState("running");
+      console.log("Running");
+    } else {
+      setTimerState("stopped")
+      if (timerID) {
+        timerID.cancel();
+      }
+    }
   }
-  React.useEffect(() => {
-    timer > 0 && (!timerStopped && countDown());
-  })
   
+  const decrementTimer = () => {
+    console.log("Decrement timer")
+    setTimer(timer - 1); 
+    console.log(timer);
+  }
+
+  const startCountDown = () => {
+    console.log("Countdown started!")
+    setTimerID(AccurateInterval(() => {
+      decrementTimer();
+      console.log("entered")
+    }, 1000))
+  }
+
+  const handleEnd = () => {
+    if (timer === 0) {
+      startBeep();
+    }
+  }
+
+  const handleReset = () => {
+    setBreakTime(5);
+    setSessionTime(25);
+    setTimerState("stopped");
+    setTimerType("Session");
+    setTimerID("");
+    setTimer(25*60);
+  }
+
   const Counter = (timer) => {
     //const [timeleft, setTimeleft] = useState(timer * 60);
+    
     const timeToFormat = (minutes, seconds) => {
       minutes = minutes < 10 ? "0" + minutes : minutes;
       seconds = seconds < 10 ? "0" + seconds : seconds;
@@ -65,11 +103,7 @@ function App() {
     let seconds = timer % 60;
     let formatted = (timeToFormat(minutes, seconds))
 
-    return(
-      <div id="timer-label">
-          <p id="time-left">{formatted}</p>
-      </div>
-    )
+    return formatted;
   }
 
   return (
@@ -92,11 +126,11 @@ function App() {
         </div> 
         <div className="timer-section">
           <div className="button-row">
-            <SkipNextIcon id="start_stop" onClick={handleStartStop}/>
+            <SkipNextIcon id="start_stop" onClick={() => TimeControl()}/>
             <ReplayIcon id="reset" onClick={handleReset} />
           </div>
           <div>
-            Session: {timerType} {Counter(timer)}
+          Session: <div id="timer-label">{timerType}</div> <div id="time-left">{Counter(timer)}</div>
           </div>          
         </div>
       </div>
