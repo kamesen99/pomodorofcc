@@ -55,25 +55,26 @@ function App() {
       console.log("Running");
     } else {
       setTimerState("stopped")
+      console.log("Stopped")
       if (timerID) {
         timerID.cancel();
       }
     }
   }
   
-  const decrementTimer = () => {
-    console.log("Decrement timer")
-    setTimer(timer - 1); 
-    console.log(timer);
-  }
-
   const startCountDown = () => {
     console.log("Countdown started!")
     setTimerID(AccurateInterval(() => {
       decrementTimer();
-      console.log("entered")
     }, 1000))
   }
+
+  const decrementTimer = () => {
+    console.log("Inside Decrement Timer")
+    setTimer(timer - 1); 
+    console.log("Timer State: " + timer);
+  }
+
 
   const handleEnd = () => {
     if (timer === 0) {
