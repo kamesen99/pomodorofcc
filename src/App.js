@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import {AccurateInterval} from "./components/AccurateInterval"
 
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
@@ -15,8 +15,13 @@ function App() {
   const [timerState, setTimerState] = useState("stopped");
   const [timerType, setTimerType] = useState("Session");
   const [timerID, setTimerID] = useState("");
-  const [timer, setTimer] = useState(2);
-  
+  const [timer, setTimer] = useState(25*60);
+  const timerRef = useRef(null);
+  const timerIDRef = useRef(null);
+
+  timerRef.current = timer;
+  timerIDRef.current = timerID;
+
   const useAudio = new Audio("BeepSound.wav");
 
   const handleClickDown = (timer, type, setFunc) =>{
@@ -58,7 +63,6 @@ function App() {
   }
   
   const decrementTimer = () => {
-    console.log("Inside Decrement Timer")
     setTimer(timer => timer - 1);
   }
 
@@ -69,31 +73,33 @@ function App() {
   
   //Not working. Cannot get the timer < 0 test to fail
   const phaseControl = () => {
-    console.log("Phase Control")
+    let time = getLastTime();
+    let timerID = getTimerID();
+    console.log(time)
     //Cannot get timer === 0 test to fail
-    handleEnd();
-    if (timer < 0) {
+    if (time === 0) {
+      useAudio.play();
+    }
+    if (time < 0) {
       if (timerID) {
         timerID.cancel();
       }
       if (timerType === "Break") {
         startCountDown();
-        switchSessionType(breakTime*60, "Break");
+        switchSessionType(breakTime*60, "Session");
       } else {
         startCountDown();
-        console.log("Timer Type!")
-        switchSessionType(sessionTime*60, "Session");
+        switchSessionType(sessionTime*60, "Break");
       }
     }
   }
   
-  const handleEnd = () => {
-    //Unable to access "timer" state?
-    if (timer === 0) {
-      console.log("Handle end success!")
-      useAudio.play();
-    }
-  }
+  const getLastTime = () => {
+    return timerRef.current;
+  };
+  const getTimerID = () => {
+    return timerIDRef.current;
+  };
   
   const handleReset = () => {
     setBreakTime(5);
@@ -101,7 +107,7 @@ function App() {
     setTimerState("stopped");
     setTimerType("Session");
     setTimerID("");
-    setTimer(3);
+    setTimer(25*60);
     useAudio.pause();
     useAudio.currentTime = 0;
   }
@@ -126,13 +132,17 @@ function App() {
       <div className="App-body">
         <div className="section">
           <div id="break-label">
-            <ArrowDownwardIcon id="break-decrement" onClick={() => handleClickDown(breakTime, "Break", setBreakTime)} style={{marginRight: "1rem"}}/>
-              <p id="break-length" >{FormatTime(breakTime*60)}</p>
+            <button id="break-decrement" onClick={() => handleClickDown(breakTime, "Break", setBreakTime)} style={{marginRight: "1rem"}}>
+              <i className="fa fa-arrow-down" />
+              </button>
+            {/* <ArrowDownwardIcon id="break-decrement" onClick={() => handleClickDown(breakTime, "Break", setBreakTime)} style={{marginRight: "1rem"}}/> */}
+              <p id="break-length" >{breakTime}</p>:00
             <ArrowUpwardIcon id="break-increment" onClick={() => handleClickUp(breakTime, "Break", setBreakTime)} style={{marginLeft: "1rem"}}/>
           </div>
           <div id="session-label">
+            
             <ArrowDownwardIcon id="session-decrement" onClick={() => handleClickDown(sessionTime, "Session", setSessionTime)} style={{marginRight: "1rem"}}/>
-              <p id="session-length" >{FormatTime(sessionTime*60)}</p>
+              <p id="session-length" >{sessionTime}</p>:00
             <ArrowUpwardIcon id="session-increment" onClick={() => handleClickUp(sessionTime, "Session", setSessionTime)} style={{marginLeft: "1rem"}}/>
           </div>
         </div> 
@@ -142,7 +152,7 @@ function App() {
             <ReplayIcon id="reset" onClick={handleReset} />
           </div>
           <div>
-          Session: <div id="timer-label">{timerType}</div> <div id="time-left">{FormatTime(timer)}</div>
+          Session: <div id="timer-label">{timerType}</div> <p id="time-left">{FormatTime(timer)}</p>
           </div>          
         </div>
       </div>
@@ -151,4 +161,3 @@ function App() {
 }
     
 export default App;
-
