@@ -10,6 +10,7 @@ export const AccurateInterval = (fn, time) => {
         return fn();
       };
       cancel = function() {
+        console.log("AI cancel")
         return clearTimeout(timeout);
       };
       timeout = setTimeout(wrapper, nextAt - new Date().getTime());

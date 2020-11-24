@@ -13,16 +13,22 @@ function App() {
   const [breakTime, setBreakTime] = useState(5);
   const [sessionTime, setSessionTime] = useState(25);
   const [timerState, setTimerState] = useState("stopped");
-  const [timerType, setTimerType] = useState("Session");
+  const [timerType, setTimerType] = useState(true);
+  // true = "Session"
   const [timerID, setTimerID] = useState("");
   const [timer, setTimer] = useState(25*60);
   const timerRef = useRef(null);
   const timerIDRef = useRef(null);
+  const audio = useRef(null);
+  const sessionRef = useRef(null);
+  const breakRef = useRef(null);
+  const timerTypeRef = useRef(null);
 
   timerRef.current = timer;
   timerIDRef.current = timerID;
-
-  const useAudio = new Audio("BeepSound.wav");
+  sessionRef.current = sessionTime;
+  breakRef.current = breakTime;
+  timerTypeRef.current = timerType;
 
   const handleClickDown = (timer, type, setFunc) =>{
     if (timer > 1) {
@@ -71,25 +77,27 @@ function App() {
     setTimerType(type);
   }
   
-  //Not working. Cannot get the timer < 0 test to fail
+  
   const phaseControl = () => {
     let time = getLastTime();
     let timerID = getTimerID();
+    let timerType = getTimerType();
     console.log(time)
-    //Cannot get timer === 0 test to fail
     if (time === 0) {
-      useAudio.play();
+      audio.current.play();
     }
     if (time < 0) {
       if (timerID) {
         timerID.cancel();
       }
-      if (timerType === "Break") {
+      if (timerType === false) {
+        let session = getSession();
+        switchSessionType(session*60, !timerType);
         startCountDown();
-        switchSessionType(breakTime*60, "Session");
       } else {
+        let breakTimeRef = getBreak();
+        switchSessionType(breakTimeRef*60, !timerType);
         startCountDown();
-        switchSessionType(sessionTime*60, "Break");
       }
     }
   }
@@ -100,16 +108,29 @@ function App() {
   const getTimerID = () => {
     return timerIDRef.current;
   };
+  const getTimerType = () => {
+    return timerTypeRef.current;
+  }
+  const getSession = () => {
+    return sessionRef.current;
+  };
+  const getBreak = () => {
+    return breakRef.current;
+  }
   
   const handleReset = () => {
+    let timerID = getTimerID();
+    if (timerID) {
+      timerID.cancel();
+    }
     setBreakTime(5);
     setSessionTime(25);
     setTimerState("stopped");
-    setTimerType("Session");
+    setTimerType(true);
     setTimerID("");
     setTimer(25*60);
-    useAudio.pause();
-    useAudio.currentTime = 0;
+    audio.current.pause();
+    audio.current.currentTime = 0;
   }
 
   const FormatTime = (timer) => {
@@ -132,28 +153,43 @@ function App() {
       <div className="App-body">
         <div className="section">
           <div id="break-label">
-            <button id="break-decrement" onClick={() => handleClickDown(breakTime, "Break", setBreakTime)} style={{marginRight: "1rem"}}>
+            <button id="break-decrement" onClick={() => handleClickDown(breakTime, false, setBreakTime)}>
               <i className="fa fa-arrow-down" />
-              </button>
-            {/* <ArrowDownwardIcon id="break-decrement" onClick={() => handleClickDown(breakTime, "Break", setBreakTime)} style={{marginRight: "1rem"}}/> */}
-              <p id="break-length" >{breakTime}</p>:00
-            <ArrowUpwardIcon id="break-increment" onClick={() => handleClickUp(breakTime, "Break", setBreakTime)} style={{marginLeft: "1rem"}}/>
+            </button>
+            <p id="break-length" >{breakTime}</p>:00
+            <button id="break-increment" onClick={() => handleClickUp(breakTime, false, setBreakTime)}>
+              <i className="fa fa-arrow-up" />
+            </button>
           </div>
           <div id="session-label">
-            
-            <ArrowDownwardIcon id="session-decrement" onClick={() => handleClickDown(sessionTime, "Session", setSessionTime)} style={{marginRight: "1rem"}}/>
-              <p id="session-length" >{sessionTime}</p>:00
-            <ArrowUpwardIcon id="session-increment" onClick={() => handleClickUp(sessionTime, "Session", setSessionTime)} style={{marginLeft: "1rem"}}/>
+            <button id="session-decrement" onClick={() => handleClickDown(sessionTime, true, setSessionTime)}>
+              <i className="fa fa-arrow-down" />
+            </button>
+            <p id="session-length" >{sessionTime}</p>:00
+            <button id="session-increment" onClick={() => handleClickUp(sessionTime, true, setSessionTime)}>
+              <i className="fa fa-arrow-up" />
+            </button>
           </div>
         </div> 
         <div className="timer-section">
           <div className="button-row">
-            <SkipNextIcon id="start_stop" onClick={() => TimeControl()}/>
-            <ReplayIcon id="reset" onClick={handleReset} />
+            <button id="start_stop" onClick={() => TimeControl()}>
+              <i className="fa fa-play" />
+              <i className="fa fa-pause" />
+            </button>
+            <button id="reset" onClick={handleReset}>
+              <i className="fa fa-retweet fa-2x" />
+            </button>
           </div>
           <div>
-          Session: <div id="timer-label">{timerType}</div> <p id="time-left">{FormatTime(timer)}</p>
-          </div>          
+          Session: <div id="timer-label">{timerType ? "Session" : "Break"}</div> <p id="time-left">{FormatTime(timer)}</p>
+          </div>
+          <audio
+            id="beep"
+            preload="auto"
+            ref={audio}
+            src="https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav"
+          />          
         </div>
       </div>
     </div>

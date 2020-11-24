@@ -11,3 +11,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+#break-increment, #session-increment {
+  margin-left: 1rem;
+}
+#break-decrement, #session-decrement {
+  margin-right: 1rem;
+}
